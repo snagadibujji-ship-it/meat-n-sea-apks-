@@ -1,0 +1,30 @@
+kind = "web"
+previewPath = "/rider-ui/"
+title = "Meat n Sea — Rider App"
+version = "1.0.0"
+id = "artifacts/rider-web"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/rider-ui/" ]
+localPort = 21807
+
+[services.development]
+run = "sh -c 'cd /home/runner/workspace/artifacts/rider-web && BASE_PATH=/rider-ui/ exec ./node_modules/.bin/vite --config vite.config.ts --host 0.0.0.0'"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/rider-web", "run", "build" ]
+publicDir = "artifacts/rider-web/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+BASE_PATH = "/rider-ui/"

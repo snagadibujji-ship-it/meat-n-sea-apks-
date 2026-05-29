@@ -1,0 +1,30 @@
+kind = "web"
+previewPath = "/admin-ui/"
+title = "Meat N Sea — Admin"
+version = "1.0.0"
+id = "artifacts/admin-web"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/admin-ui/" ]
+localPort = 5000
+
+[services.development]
+run = "sh -c 'cd /home/runner/workspace/artifacts/admin-web && BASE_PATH=/admin-ui/ exec ./node_modules/.bin/vite dev --config vite.config.ts'"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/admin-web", "run", "build" ]
+publicDir = "artifacts/admin-web/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+BASE_PATH = "/admin-ui/"
