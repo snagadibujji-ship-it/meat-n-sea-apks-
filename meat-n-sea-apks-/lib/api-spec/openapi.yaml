@@ -1,0 +1,841 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Meat N Sea API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication
+  - name: admin
+    description: Admin operations
+  - name: vendors
+    description: Vendor management
+  - name: products
+    description: Product management
+  - name: orders
+    description: Order management
+  - name: riders
+    description: Rider/delivery partner management
+  - name: studio
+    description: Studio subscriptions
+  - name: analytics
+    description: Analytics
+
+security: []
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/otp/request:
+    post:
+      operationId: requestOtp
+      tags: [auth]
+      summary: Request OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpRequest"
+      responses:
+        "200":
+          description: OTP sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/otp/verify:
+    post:
+      operationId: verifyOtp
+      tags: [auth]
+      summary: Verify OTP and get JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OtpVerify"
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthToken"
+
+  /admin/daily-report:
+    get:
+      operationId: getAdminDailyReport
+      tags: [admin]
+      summary: Get daily analytics report
+      responses:
+        "200":
+          description: Daily report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyReport"
+
+  /admin/vendors:
+    get:
+      operationId: getAllVendors
+      tags: [admin]
+      summary: Get all vendors
+      responses:
+        "200":
+          description: List of vendors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Vendor"
+
+  /admin/orders:
+    get:
+      operationId: getAllOrders
+      tags: [admin]
+      summary: Get all orders
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+
+  /vendors/nearby:
+    get:
+      operationId: getNearbyVendors
+      tags: [vendors]
+      summary: Get nearby open vendors
+      parameters:
+        - name: lng
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: maxDistance
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Nearby vendors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Vendor"
+
+  /vendors/{vendorId}/status:
+    patch:
+      operationId: toggleVendorStatus
+      tags: [vendors]
+      summary: Toggle vendor open/closed status
+      parameters:
+        - name: vendorId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VendorStatusInput"
+      responses:
+        "200":
+          description: Updated vendor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vendor"
+
+  /products:
+    get:
+      operationId: getProducts
+      tags: [products]
+      summary: Get products
+      parameters:
+        - name: vendorId
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Product list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/{productId}/toggle-stock:
+    post:
+      operationId: toggleProductStock
+      tags: [products]
+      summary: Toggle product stock
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StockToggleInput"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /vendors/mine:
+    get:
+      operationId: getMyVendor
+      tags: [vendors]
+      summary: Get vendor profile for authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Vendor profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vendor"
+
+  /riders/mine:
+    get:
+      operationId: getMyRider
+      tags: [riders]
+      summary: Get or create rider profile for authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Rider profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiderProfile"
+    put:
+      operationId: updateMyRiderStatus
+      tags: [riders]
+      summary: Toggle rider online/offline
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RiderStatusInput"
+      responses:
+        "200":
+          description: Updated rider profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiderProfile"
+
+  /orders/mine:
+    get:
+      operationId: getMyOrders
+      tags: [orders]
+      summary: Get authenticated user's order history
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: My orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+
+  /orders/vendor:
+    get:
+      operationId: getVendorOrders
+      tags: [orders]
+      summary: Get orders for a vendor
+      parameters:
+        - name: vendorId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Vendor orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+
+  /orders/rider:
+    get:
+      operationId: getRiderOrders
+      tags: [riders]
+      summary: Get orders assigned to authenticated rider
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Rider orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+
+  /orders/place:
+    post:
+      operationId: placeOrder
+      tags: [orders]
+      summary: Place a new order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{orderId}/advance:
+    post:
+      operationId: advanceOrderStatus
+      tags: [orders]
+      summary: Advance order to next status
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderStatusInput"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{orderId}/whatsapp-link:
+    get:
+      operationId: getOrderWhatsappLink
+      tags: [orders]
+      summary: Get WhatsApp fallback link for order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: WhatsApp link
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WhatsappLink"
+
+  /search:
+    get:
+      operationId: globalSearch
+      tags: [vendors]
+      summary: Search vendors and products
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResult"
+
+  /studio/home:
+    get:
+      operationId: getStudioHome
+      tags: [studio]
+      summary: Get studio home data
+      responses:
+        "200":
+          description: Studio home
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudioHome"
+
+  /studio/plans:
+    get:
+      operationId: getStudioPlans
+      tags: [studio]
+      summary: Get studio subscription plans
+      responses:
+        "200":
+          description: Plans list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudioPlan"
+    post:
+      operationId: createStudioPlan
+      tags: [studio]
+      summary: Create a studio plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudioPlanInput"
+      responses:
+        "201":
+          description: Created plan
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudioPlan"
+
+  /studio/collections:
+    get:
+      operationId: getStudioCollections
+      tags: [studio]
+      summary: Get all collections
+      responses:
+        "200":
+          description: Collections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Collection"
+
+  /analytics/summary:
+    get:
+      operationId: getAnalyticsSummary
+      tags: [analytics]
+      summary: Get analytics summary (7 days)
+      responses:
+        "200":
+          description: Analytics summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnalyticsSummary"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+
+    MessageResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+        devOtp:
+          type: ["string", "null"]
+
+    AuthToken:
+      type: object
+      required: [message, userId, role, token]
+      properties:
+        message:
+          type: string
+        userId:
+          type: string
+        role:
+          type: string
+        token:
+          type: string
+
+    OtpRequest:
+      type: object
+      required: [phone]
+      properties:
+        phone:
+          type: string
+
+    OtpVerify:
+      type: object
+      required: [phone, code]
+      properties:
+        phone:
+          type: string
+        code:
+          type: string
+
+    Vendor:
+      type: object
+      required: [_id, name, phone, isOpen, status, serviceRadiusKm]
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        isOpen:
+          type: boolean
+        status:
+          type: string
+        serviceRadiusKm:
+          type: number
+        fssaiNumber:
+          type: ["string", "null"]
+        distance:
+          type: ["number", "null"]
+
+    VendorStatusInput:
+      type: object
+      required: [isOpen]
+      properties:
+        isOpen:
+          type: boolean
+
+    RiderProfile:
+      type: object
+      required: [_id, userId, isOnline, status]
+      properties:
+        _id:
+          type: string
+        userId:
+          type: string
+        isOnline:
+          type: boolean
+        status:
+          type: string
+        lastPing:
+          type: ["string", "null"]
+
+    RiderStatusInput:
+      type: object
+      required: [isOnline]
+      properties:
+        isOnline:
+          type: boolean
+
+    Product:
+      type: object
+      required: [_id, vendorId, name, pricePaise, stockQuantity, isOutOfStock]
+      properties:
+        _id:
+          type: string
+        vendorId:
+          type: string
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        pricePaise:
+          type: integer
+        stockQuantity:
+          type: integer
+        isOutOfStock:
+          type: boolean
+        imageUrl:
+          type: ["string", "null"]
+
+    StockToggleInput:
+      type: object
+      properties:
+        stockQuantity:
+          type: ["integer", "null"]
+
+    Order:
+      type: object
+      required: [_id, customerId, vendorId, totalAmountPaise, paymentMethod, currentStatus]
+      properties:
+        _id:
+          type: string
+        customerId:
+          type: string
+        vendorId:
+          type: string
+        partnerId:
+          type: ["string", "null"]
+        totalAmountPaise:
+          type: integer
+        paymentMethod:
+          type: string
+        currentStatus:
+          type: string
+        customerNote:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    OrderInput:
+      type: object
+      required: [vendorId, userLocation]
+      properties:
+        vendorId:
+          type: string
+        userLocation:
+          type: object
+          required: [lng, lat]
+          properties:
+            lng:
+              type: number
+            lat:
+              type: number
+        customerNote:
+          type: ["string", "null"]
+        paymentMethod:
+          type: string
+
+    OrderStatusInput:
+      type: object
+      required: [newStatus]
+      properties:
+        newStatus:
+          type: string
+
+    WhatsappLink:
+      type: object
+      required: [link]
+      properties:
+        link:
+          type: string
+
+    DailyReport:
+      type: object
+      required: [totalOrders, grossRevenuePaise, platformFeePaise]
+      properties:
+        totalOrders:
+          type: integer
+        grossRevenuePaise:
+          type: integer
+        platformFeePaise:
+          type: integer
+        topVendorId:
+          type: ["string", "null"]
+        topVendorName:
+          type: ["string", "null"]
+        totalUsers:
+          type: integer
+        totalVendors:
+          type: integer
+        statusBreakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+              count:
+                type: integer
+
+    SearchResult:
+      type: object
+      required: [vendors, products, query]
+      properties:
+        vendors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Vendor"
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        query:
+          type: string
+
+    StudioPlan:
+      type: object
+      required: [_id, name, description, pricePaise, intervalDays]
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        pricePaise:
+          type: integer
+        intervalDays:
+          type: integer
+        curatedItems:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+
+    StudioPlanInput:
+      type: object
+      required: [name, description, pricePaise, intervalDays]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        pricePaise:
+          type: integer
+        intervalDays:
+          type: integer
+        curatedItems:
+          type: array
+          items:
+            type: string
+
+    Collection:
+      type: object
+      required: [_id, name, slug]
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        slug:
+          type: string
+        description:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        freshnessHours:
+          type: ["integer", "null"]
+        harvestTime:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+
+    StudioHome:
+      type: object
+      required: [collections, plans, featuredProducts]
+      properties:
+        collections:
+          type: array
+          items:
+            $ref: "#/components/schemas/Collection"
+        plans:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudioPlan"
+        featuredProducts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+
+    AnalyticsSummary:
+      type: object
+      required: [eventCounts, orderTrend]
+      properties:
+        eventCounts:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+              count:
+                type: integer
+        orderTrend:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+              orders:
+                type: integer
+              revenuePaise:
+                type: integer

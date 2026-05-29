@@ -1,0 +1,2 @@
+- [Socket.io path routing](socket-path-routing.md) — /socket.io must be in artifact.toml paths alongside /api for Socket.io to work through the shared proxy.
+- [Socket room join pattern](socket-rooms.md) — clients emit join_vendor/join_rider after connect; server must handle these join events to place sockets in rooms.
