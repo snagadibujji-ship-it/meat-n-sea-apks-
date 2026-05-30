@@ -44,7 +44,7 @@ function ProductItem({
         {product.description && (
           <Text style={styles.productDesc} numberOfLines={2}>{product.description}</Text>
         )}
-        <Text style={styles.productPrice}>₹{(product.pricePaise / 100).toFixed(0)}</Text>
+        <Text style={styles.productPrice}>₹{((product.pricePaise ?? 0) / 100).toFixed(0)}</Text>
       </View>
       <View style={styles.qtyControl}>
         {product.isOutOfStock ? (
@@ -117,7 +117,7 @@ export default function VendorScreen() {
                 addItem({
                   productId: item._id,
                   name: item.name,
-                  pricePaise: item.pricePaise,
+                  pricePaise: item.pricePaise ?? 0,
                   imageUrl: item.imageUrl,
                   vendorId: id!,
                 })

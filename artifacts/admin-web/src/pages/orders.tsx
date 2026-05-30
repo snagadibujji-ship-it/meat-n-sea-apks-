@@ -32,7 +32,7 @@ function formatPaise(paise: number) {
 }
 
 function OrderRow({ order }: { order: Order }) {
-  const statusClass = STATUS_COLORS[order.currentStatus] ?? "bg-muted text-muted-foreground border-border";
+  const statusClass = STATUS_COLORS[order.currentStatus ?? ""] ?? "bg-muted text-muted-foreground border-border";
   const createdAt = order.createdAt ? new Date(order.createdAt).toLocaleString("en-IN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "short" }) : "—";
 
   return (
@@ -50,7 +50,7 @@ function OrderRow({ order }: { order: Order }) {
         )}
       </div>
       <div className="text-right shrink-0">
-        <p className="text-sm font-semibold text-foreground">{formatPaise(order.totalAmountPaise)}</p>
+        <p className="text-sm font-semibold text-foreground">{formatPaise(order.totalAmountPaise ?? 0)}</p>
         <span className={`inline-block mt-0.5 text-xs px-2 py-0.5 rounded-full border font-medium ${statusClass}`}>
           {order.currentStatus?.replace(/_/g, " ")}
         </span>

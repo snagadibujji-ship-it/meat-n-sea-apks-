@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useGlobalSearch } from "@workspace/api-client-react";
+import type { Vendor, Product } from "@workspace/api-client-react";
 import colors from "@/constants/colors";
 
 function useDebounce(value: string, delay = 400) {
@@ -32,11 +33,11 @@ export default function SearchScreen() {
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const { data, isLoading } = useGlobalSearch(
-    { q: debounced, limit: "20" },
-    { query: { enabled: debounced.length >= 2 } }
+    { q: debounced },
+    { query: { enabled: debounced.length >= 2 } as never }
   );
 
-  const hasResults = data && (data.vendors.length > 0 || data.products.length > 0);
+  const hasResults = data && ((data.vendors?.length ?? 0) > 0 || (data.products?.length ?? 0) > 0);
 
   return (
     <View style={[styles.container, { paddingTop: topPad }]}>
@@ -80,15 +81,15 @@ export default function SearchScreen() {
       ) : (
         <FlatList
           data={[
-            ...(data?.vendors ?? []).map((v) => ({ type: "vendor" as const, item: v })),
-            ...(data?.products ?? []).map((p) => ({ type: "product" as const, item: p })),
+            ...(data?.vendors ?? []).map((v) => ({ type: "vendor" as const, item: v as Vendor })),
+            ...(data?.products ?? []).map((p) => ({ type: "product" as const, item: p as Product })),
           ]}
           keyExtractor={(row) => `${row.type}-${row.item._id}`}
           contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + (Platform.OS === "web" ? 34 : 80) }}
           showsVerticalScrollIndicator={false}
           renderItem={({ item: row }) => {
             if (row.type === "vendor") {
-              const v = row.item as ReturnType<typeof data.vendors>[0];
+              const v = row.item as Vendor;
               return (
                 <TouchableOpacity
                   style={styles.resultRow}
@@ -106,7 +107,7 @@ export default function SearchScreen() {
                 </TouchableOpacity>
               );
             }
-            const p = row.item as ReturnType<typeof data.products>[0];
+            const p = row.item as Product;
             return (
               <View style={styles.resultRow}>
                 <View style={[styles.resultIcon, { backgroundColor: `${colors.light.accent}18` }]}>
@@ -114,7 +115,7 @@ export default function SearchScreen() {
                 </View>
                 <View style={styles.resultBody}>
                   <Text style={styles.resultTitle}>{p.name}</Text>
-                  <Text style={styles.resultSub}>₹{(p.pricePaise / 100).toFixed(0)} · {p.isOutOfStock ? "Out of stock" : "In stock"}</Text>
+                  <Text style={styles.resultSub}>₹{((p.pricePaise ?? 0) / 100).toFixed(0)} · {p.isOutOfStock ? "Out of stock" : "In stock"}</Text>
                 </View>
               </View>
             );

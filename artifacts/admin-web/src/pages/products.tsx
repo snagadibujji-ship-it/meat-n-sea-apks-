@@ -54,7 +54,7 @@ function ProductCard({ product }: { product: Product }) {
                   <Badge variant="secondary" className="text-xs mt-0.5">{product.category}</Badge>
                 )}
               </div>
-              <p className="text-sm font-bold text-primary shrink-0">{formatPaise(product.pricePaise)}</p>
+              <p className="text-sm font-bold text-primary shrink-0">{formatPaise(product.pricePaise ?? 0)}</p>
             </div>
             {product.description && (
               <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{product.description}</p>

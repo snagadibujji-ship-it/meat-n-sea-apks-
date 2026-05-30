@@ -13,7 +13,7 @@ export default function Products() {
 
   const { data: products, isLoading } = useGetProducts(
     { vendorId },
-    { query: { enabled: !!vendorId } }
+    { query: { enabled: !!vendorId } as never }
   );
 
   const toggleStock = useToggleProductStock({

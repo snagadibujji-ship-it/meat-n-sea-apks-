@@ -31,7 +31,7 @@ export default function History() {
 
   const totalEarned = orderList
     .filter((o) => (o as { status: string }).status === "delivered")
-    .reduce((s, o) => s + ((o as { totalAmount: number }).totalAmount ?? 0), 0);
+    .reduce((s: number, o) => s + ((o as { totalAmount: number }).totalAmount ?? 0), 0);
 
   return (
     <div className="p-6 max-w-3xl mx-auto space-y-6">
@@ -54,7 +54,7 @@ export default function History() {
             <Clock className="w-4 h-4 text-accent-foreground" />
             <span className="text-xs">Total earned</span>
           </div>
-          <p className="text-2xl font-bold text-foreground">{fmt(totalEarned)}</p>
+          <p className="text-2xl font-bold text-foreground">{fmt(totalEarned as number)}</p>
         </div>
       </div>
 

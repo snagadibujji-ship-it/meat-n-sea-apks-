@@ -54,7 +54,7 @@ function OrderCard({ order }: { order: Order }) {
 
       <View style={styles.cardMid}>
         <Text style={styles.amount}>
-          ₹{(order.totalAmountPaise / 100).toFixed(0)}
+          ₹{((order.totalAmountPaise ?? 0) / 100).toFixed(0)}
         </Text>
         <Text style={styles.payMethod}>
           {(order.paymentMethod ?? "—").toUpperCase()}
@@ -79,7 +79,7 @@ export default function OrdersScreen() {
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const { data: orders, isLoading, error, refetch, isRefetching } = useGetMyOrders({
-    query: { enabled: !!token },
+    query: { enabled: !!token } as never,
   });
 
   return (

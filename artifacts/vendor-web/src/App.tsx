@@ -21,9 +21,9 @@ const queryClient = new QueryClient({
 });
 
 function AppRoutes() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, role } = useAuth();
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || role !== "vendor") {
     return <Login />;
   }
 

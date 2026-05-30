@@ -1,7 +1,6 @@
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Store, ShoppingBag, Package } from "lucide-react";
+import { LayoutDashboard, Store, ShoppingBag, Package, Fish } from "lucide-react";
 import { cn } from "@/lib/utils";
-import logoUrl from "@assets/IMG_20260512_082228_1779882901880.jpg";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -18,7 +17,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside className="w-60 shrink-0 bg-sidebar text-sidebar-foreground flex flex-col">
         <div className="flex items-center gap-3 px-4 py-4 border-b border-sidebar-border">
-          <img src={logoUrl} alt="Meat n Sea" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
+            <Fish className="w-6 h-6 text-primary-foreground" />
+          </div>
           <div>
             <p className="text-sm font-bold text-sidebar-foreground leading-tight">Meat n Sea</p>
             <p className="text-xs text-sidebar-foreground/50 leading-tight">Admin Panel</p>

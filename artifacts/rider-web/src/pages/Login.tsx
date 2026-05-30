@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRequestOtp, useVerifyOtp } from "@workspace/api-client-react";
 import { useAuth } from "@/context/AuthContext";
-import logoUrl from "@assets/IMG_20260512_082228_1779882901880.jpg";
+import { Fish } from "lucide-react";
 
 export default function Login() {
   const { setAuth } = useAuth();
@@ -51,7 +51,9 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
-          <img src={logoUrl} alt="Meat n Sea" className="w-20 h-20 rounded-2xl object-cover shadow-md mb-4" />
+          <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center shadow-md mb-4">
+            <Fish className="w-10 h-10 text-primary-foreground" />
+          </div>
           <h1 className="text-2xl font-bold text-foreground">Meat n Sea</h1>
           <p className="text-sm text-muted-foreground mt-1">Rider App</p>
         </div>

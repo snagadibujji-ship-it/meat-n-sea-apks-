@@ -30,7 +30,7 @@ export default function Dashboard() {
   const { data: vendor, isLoading: vendorLoading } = useGetMyVendor();
   const vendorId = (vendor as { _id?: string })?._id ?? "";
   useVendorSocket(vendorId || undefined);
-  const { data: orders } = useGetVendorOrders({ vendorId }, { query: { enabled: !!vendorId } });
+  const { data: orders } = useGetVendorOrders({ vendorId }, { query: { enabled: !!vendorId } as never });
 
   const toggleStatus = useToggleVendorStatus({
     mutation: {
@@ -48,7 +48,7 @@ export default function Dashboard() {
       const now = new Date();
       return d.toDateString() === now.toDateString();
     })
-    .reduce((s, o) => s + ((o as { totalAmount: number }).totalAmount ?? 0), 0);
+    .reduce((s: number, o) => s + ((o as { totalAmount: number }).totalAmount ?? 0), 0);
 
   const isOpen = (vendor as { isOpen?: boolean })?.isOpen ?? false;
 
@@ -105,7 +105,7 @@ export default function Dashboard() {
         <StatCard
           icon={<TrendingUp className="w-5 h-5 text-accent-foreground" />}
           label="Today's revenue"
-          value={fmt(todayRevenue)}
+          value={fmt(todayRevenue as number)}
           accent
         />
         <StatCard

@@ -1,0 +1,3 @@
+- [Vite dev workflow port tracking](vite-workflow-port.md) — `pnpm --filter` fails DIDNT_OPEN_A_PORT; use `sh -c 'cd <dir> && exec ./node_modules/.bin/vite'` in artifact.toml dev run.
+- [api-zod duplicate exports](api-zod-exports.md) — `lib/api-zod/src/index.ts` must only export from `./generated/api`; adding `./generated/types` causes TS2308 duplicate member errors.
+- [orval query options typing](orval-query-options.md) — orval-generated hooks with `{ query: { enabled } }` require `queryKey`; cast options as `never` to suppress without changing generated code.

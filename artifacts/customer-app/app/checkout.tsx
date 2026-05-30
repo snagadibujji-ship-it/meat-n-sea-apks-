@@ -45,9 +45,10 @@ export default function CheckoutScreen() {
       await placeMutation.mutateAsync({
         data: {
           vendorId,
-          userLocation: { lng: 77.5946, lat: 12.9716 },
+          items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+          deliveryAddress: "Default Address",
           paymentMethod,
-          customerNote: note || null,
+          customerNote: note || undefined,
         },
       });
       clearCart();

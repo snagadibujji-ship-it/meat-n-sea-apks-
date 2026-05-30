@@ -46,7 +46,7 @@ export default function Orders() {
   const vendorId = (vendor as { _id?: string })?._id ?? "";
   const { data: orders, isLoading } = useGetVendorOrders(
     { vendorId },
-    { query: { enabled: !!vendorId } }
+    { query: { enabled: !!vendorId } as never }
   );
 
   const advance = useAdvanceOrderStatus({

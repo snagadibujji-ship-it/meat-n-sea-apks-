@@ -18,10 +18,12 @@ import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/context/AuthContext";
 import colors from "@/constants/colors";
 
+type VendorWithDistance = Vendor & { distance?: number };
+
 const DEFAULT_LNG = "77.5946";
 const DEFAULT_LAT = "12.9716";
 
-function VendorCard({ vendor, onPress }: { vendor: Vendor; onPress: () => void }) {
+function VendorCard({ vendor, onPress }: { vendor: VendorWithDistance; onPress: () => void }) {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
       <View style={styles.cardIconWrap}>
@@ -50,9 +52,9 @@ export default function HomeScreen() {
   const { token } = useAuth();
 
   const { data: vendors, isLoading, isRefetching, refetch, error } = useGetNearbyVendors({
-    lng: DEFAULT_LNG,
-    lat: DEFAULT_LAT,
-    maxDistance: "10000",
+    lng: Number(DEFAULT_LNG),
+    lat: Number(DEFAULT_LAT),
+    radius: 10000,
   });
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -92,7 +94,7 @@ export default function HomeScreen() {
         </View>
       ) : (
         <FlatList
-          data={vendors}
+          data={vendors as VendorWithDistance[]}
           keyExtractor={(v) => v._id}
           renderItem={({ item }) => (
             <VendorCard vendor={item} onPress={() => router.push(`/vendor/${item._id}`)} />
